@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Happy Birthday</title>
+<meta name="description" content="A birthday card." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Nunito:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --night:   #1b1033;
+    --panel:   #2d1b4e;
+    --panel-2: #3b2563;
+    --pink:    #ffd6e8;
+    --hot:     #ff7eb6;
+    --gold:    #ffc857;
+    --cyan:    #7bdff2;
+    --paper:   #f7f3ff;
+    --px: 4px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    min-height: 100%;
+  }
+
+  body {
+    background:
+      radial-gradient(circle at 20% 15%, #33195c 0%, transparent 55%),
+      radial-gradient(circle at 85% 80%, #2a1a5e 0%, transparent 50%),
+      var(--night);
+    color: var(--paper);
+    font-family: 'Nunito', system-ui, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* soft star field */
+  .stars { position: fixed; inset: 0; pointer-events: none; opacity: .55; }
+  .stars i {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: var(--paper);
+    border-radius: 0;
+  }
+
+  .cabinet {
+    position: relative;
+    width: min(620px, 100%);
+    z-index: 1;
+  }
+
+  .screen {
+    background: linear-gradient(180deg, var(--panel-2), var(--panel));
+    border: var(--px) solid var(--pink);
+    box-shadow:
+      0 0 0 var(--px) var(--night),
+      0 0 0 calc(var(--px) * 2) var(--panel-2),
+      0 18px 0 -6px rgba(0,0,0,.45);
+    padding: 22px 20px 18px;
+  }
+
+  .stage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 190px;
+    padding: 6px 0 18px;
+  }
+
+  .sprite {
+    width: 150px;
+    height: 150px;
+    animation: bob 2.4s ease-in-out infinite;
+  }
+
+  @keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-8px); }
+  }
+
+  .box {
+    background: var(--night);
+    border: var(--px) solid var(--paper);
+    padding: 18px 18px 16px;
+    position: relative;
+    min-height: 168px;
+  }
+
+  .who {
+    font-family: 'Pixelify Sans', monospace;
+    font-size: 15px;
+    color: var(--gold);
+    margin: 0 0 10px;
+    letter-spacing: .5px;
+  }
+
+  .line {
+    font-size: 17px;
+    line-height: 1.65;
+    margin: 0;
+    max-width: 52ch;
+    min-height: 5.6em;
+    white-space: pre-wrap;
+  }
+
+  .line em { color: var(--hot); font-style: italic; }
+
+  .caret {
+    position: absolute;
+    right: 14px;
+    bottom: 10px;
+    font-family: 'Pixelify Sans', monospace;
+    font-size: 20px;
+    color: var(--cyan);
+    animation: blink 1s steps(2, start) infinite;
+  }
+
+  .caret[hidden] { display: none; }
+
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .dots { display: flex; gap: 8px; }
+
+  .dots span {
+    width: 12px; height: 12px;
+    background: var(--panel-2);
+    box-shadow: inset 0 0 0 2px var(--panel);
+    transition: background .2s ease;
+  }
+
+  .dots span.on { background: var(--hot); box-shadow: none; }
+
+  button.next {
+    font-family: 'Pixelify Sans', monospace;
+    font-size: 16px;
+    color: var(--night);
+    background: var(--gold);
+    border: none;
+    padding: 12px 22px;
+    cursor: pointer;
+    box-shadow: 0 5px 0 #c98f1f;
+    transition: transform .06s ease, box-shadow .06s ease;
+  }
+
+  button.next:active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #c98f1f;
+  }
+
+  button.next:focus-visible {
+    outline: 3px solid var(--cyan);
+    outline-offset: 3px;
+  }
+
+  .hint {
+    text-align: center;
+    margin: 14px 0 0;
+    font-size: 13px;
+    color: #b6a8d8;
+  }
+
+  /* achievement toast on the last page */
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 28px;
+    transform: translate(-50%, 140%);
+    background: var(--night);
+    border: 3px solid var(--gold);
+    padding: 12px 20px;
+    font-family: 'Pixelify Sans', monospace;
+    font-size: 15px;
+    color: var(--gold);
+    text-align: center;
+    transition: transform .5s cubic-bezier(.2,.9,.3,1.2);
+    z-index: 5;
+  }
+
+  .toast.show { transform: translate(-50%, 0); }
+  .toast small { display: block; color: var(--paper); font-size: 12px; margin-top: 4px; }
+
+  .confetti {
+    position: fixed;
+    top: -20px;
+    width: 10px; height: 10px;
+    pointer-events: none;
+    z-index: 4;
+  }
+
+  @media (max-width: 480px) {
+    .screen { padding: 16px 12px 14px; }
+    .sprite { width: 118px; height: 118px; }
+    .stage { min-height: 150px; }
+    .line { font-size: 16px; }
+    .controls { justify-content: center; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sprite { animation: none; }
+    .caret { animation: none; }
+    .toast { transition: none; }
+    .confetti { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stars" aria-hidden="true"></div>
+
+<main class="cabinet">
+  <div class="screen">
+    <div class="stage">
+      <svg class="sprite" id="sprite" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true"></svg>
+    </div>
+
+    <div class="box">
+      <p class="who" id="who"></p>
+      <p class="line" id="line" aria-live="polite"></p>
+      <span class="caret" id="caret">▼</span>
+    </div>
+
+    <div class="controls">
+      <div class="dots" id="dots" aria-hidden="true"></div>
+      <button class="next" id="next" type="button">Next ▸</button>
+    </div>
+  </div>
+  <p class="hint">Click anywhere, or press space.</p>
+</main>
+
+<div class="toast" id="toast" role="status">
+  Achievement unlocked
+  <small>Another year with you · 100G</small>
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+   EDIT EVERYTHING BELOW THIS LINE. That's the whole card.
+   who    = the little gold label (like a speaker name in an RPG)
+   text   = the message. Wrap words in <em>...</em> for pink emphasis.
+   sprite = cake | controller | cat | heart | trophy | star
+------------------------------------------------------------------ */
+
+const NAME = "Lauren";
+
+const PAGES = [
+  {
+    sprite: "cake",
+    who: "※ A wild birthday appeared!",
+    text: "It's your birthday, " + NAME + ".\nI decided to make you something instead. It has pages. Keep clicking."
+  },
+  {
+    sprite: "controller",
+    who: "Party member: you",
+    text: "Ninety thousand gamerscore. Every console under one roof.\nYou've finished more games than most people have started.\nI've never once been able to out-grind you."
+  },
+  {
+    sprite: "cat",
+    who: "The cats",
+    text: "They asked me to pass along a message.\nIt was mostly about breakfast.\nBut I think there was a happy birthday in there somewhere."
+  },
+  {
+    sprite: "heart",
+    who: "Me, being sincere for one second",
+    text: "You're my favorite person to spend a whole day doing nothing with.\nThank you for every ordinary evening. Those are the good ones."
+  },
+  {
+    sprite: "trophy",
+    who: "Quest complete",
+    text: "Reward: one more year of me leaving water bottles everywhere.\nSorry. It's the best I've got."
+  },
+  {
+    sprite: "star",
+    who: "※",
+    text: "Happy birthday. I love you beautiful.\n♥"
+  }
+];
+
+/* ------------------------------------------------------------------
+   Below here is just machinery. You probably don't need to touch it.
+------------------------------------------------------------------ */
+
+const SPRITES = {
+  cake: {
+    key: { f: "#ffc857", c: "#7bdff2", w: "#ffd6e8", b: "#c88bd8", p: "#ff7eb6" },
+    rows: [
+      "................",
+      "................",
+      ".......f........",
+      ".......f........",
+      ".......c........",
+      "...wwwwwwwwww...",
+      "..wwwwwwwwwwww..",
+      "..wwwwwwwwwwww..",
+      "..bbbbbbbbbbbb..",
+      "..bppbbppbbppb..",
+      "..bbbbbbbbbbbb..",
+      "..bbppbbppbbpb..",
+      "..bbbbbbbbbbbb..",
+      "..pppppppppppp..",
+      "................",
+      "................"
+    ]
+  },
+  controller: {
+    key: { g: "#7bdff2", d: "#1b1033", o: "#ff7eb6" },
+    rows: [
+      "................",
+      "................",
+      "................",
+      "................",
+      "...gggggggggg...",
+      "..gggggggggggg..",
+      ".gggggggggggggg.",
+      ".gg.d.gggggg.o.g",
+      ".g.ddd.gggg.oo.g",
+      ".gg.d.gggggg.o.g",
+      ".gggggggggggggg.",
+      "..gggg....gggg..",
+      "...gg......gg...",
+      "................",
+      "................",
+      "................"
+    ]
+  },
+  cat: {
+    key: { k: "#ffc857", g: "#1b1033", p: "#ff7eb6" },
+    rows: [
+      "................",
+      "................",
+      "................",
+      "..kk........kk..",
+      "..kkk......kkk..",
+      "..kkkkkkkkkkkk..",
+      "..kkkkkkkkkkkk..",
+      "..kk.g.kk.g.kk..",
+      "..kkkkkkkkkkkk..",
+      "..kkk.p..p.kkk..",
+      "..kkkkkkkkkkkk..",
+      "...kkkkkkkkkk...",
+      "....kkkkkkkk....",
+      "................",
+      "................",
+      "................"
+    ]
+  },
+  heart: {
+    key: { p: "#ff7eb6" },
+    rows: [
+      "................",
+      "................",
+      "................",
+      "...pppp..pppp...",
+      "..pppppp.pppppp.",
+      ".pppppppppppppp.",
+      ".pppppppppppppp.",
+      ".pppppppppppppp.",
+      "..pppppppppppp..",
+      "...pppppppppp...",
+      "....pppppppp....",
+      ".....pppppp.....",
+      "......pppp......",
+      ".......pp.......",
+      "................",
+      "................"
+    ]
+  },
+  trophy: {
+    key: { w: "#ffc857" },
+    rows: [
+      "................",
+      "................",
+      "................",
+      "..wwwwwwwwwwww..",
+      "..w.wwwwwwww.w..",
+      "..w.wwwwwwww.w..",
+      "....wwwwwwww....",
+      ".....wwwwww.....",
+      "......wwww......",
+      ".......ww.......",
+      "......wwww......",
+      "....wwwwwwww....",
+      "....wwwwwwww....",
+      "................",
+      "................",
+      "................"
+    ]
+  },
+  star: {
+    key: { s: "#ffc857" },
+    rows: [
+      "................",
+      "................",
+      ".......ss.......",
+      ".......ss.......",
+      "......ssss......",
+      ".ssssssssssssss.",
+      "..ssssssssssss..",
+      "...ssssssssss...",
+      "....ssssssss....",
+      "...ssss..ssss...",
+      "..sss......sss..",
+      "..ss........ss..",
+      "................",
+      "................",
+      "................",
+      "................"
+    ]
+  }
+};
+
+const spriteEl = document.getElementById("sprite");
+const whoEl    = document.getElementById("who");
+const lineEl   = document.getElementById("line");
+const caretEl  = document.getElementById("caret");
+const dotsEl   = document.getElementById("dots");
+const nextEl   = document.getElementById("next");
+const toastEl  = document.getElementById("toast");
+
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+let index = 0;
+let typing = false;
+let timer = null;
+
+function drawSprite(name) {
+  const s = SPRITES[name];
+  if (!s) return;
+  let out = "";
+  s.rows.forEach((row, y) => {
+    for (let x = 0; x < row.length; x++) {
+      const c = s.key[row[x]];
+      if (c) out += '<rect x="' + x + '" y="' + y + '" width="1" height="1" fill="' + c + '"/>';
+    }
+  });
+  spriteEl.innerHTML = out;
+}
+
+function buildDots() {
+  dotsEl.innerHTML = PAGES.map(() => "<span></span>").join("");
+}
+
+function markDots() {
+  [...dotsEl.children].forEach((d, i) => d.classList.toggle("on", i <= index));
+}
+
+// Types out the text, but keeps <em> tags intact by revealing character by
+// character from the parsed HTML rather than slicing the raw string.
+function type(html) {
+  clearInterval(timer);
+  lineEl.innerHTML = "";
+  caretEl.hidden = true;
+
+  const holder = document.createElement("div");
+  holder.innerHTML = html;
+  const chars = [];
+
+  (function walk(node, styled) {
+    node.childNodes.forEach(n => {
+      if (n.nodeType === 3) {
+        for (const ch of n.textContent) chars.push({ ch, styled });
+      } else {
+        walk(n, styled || n.tagName === "EM");
+      }
+    });
+  })(holder, false);
+
+  if (reduceMotion) {
+    lineEl.innerHTML = html;
+    typing = false;
+    caretEl.hidden = false;
+    return;
+  }
+
+  typing = true;
+  let i = 0;
+  timer = setInterval(() => {
+    if (i >= chars.length) {
+      clearInterval(timer);
+      typing = false;
+      caretEl.hidden = false;
+      return;
+    }
+    const { ch, styled } = chars[i++];
+    if (styled) {
+      const em = document.createElement("em");
+      em.textContent = ch;
+      lineEl.appendChild(em);
+    } else {
+      lineEl.appendChild(document.createTextNode(ch));
+    }
+  }, 26);
+
+  lineEl.dataset.full = html;
+}
+
+function finishTyping() {
+  clearInterval(timer);
+  lineEl.innerHTML = lineEl.dataset.full || lineEl.innerHTML;
+  typing = false;
+  caretEl.hidden = false;
+}
+
+function render() {
+  const page = PAGES[index];
+  drawSprite(page.sprite);
+  whoEl.textContent = page.who;
+  type(page.text);
+  markDots();
+
+  const last = index === PAGES.length - 1;
+  nextEl.textContent = last ? "Start over" : "Next ▸";
+  if (last) celebrate();
+}
+
+function advance() {
+  if (typing) { finishTyping(); return; }
+  index = (index + 1) % PAGES.length;
+  if (index === 0) toastEl.classList.remove("show");
+  render();
+}
+
+nextEl.addEventListener("click", e => { e.stopPropagation(); advance(); });
+document.addEventListener("click", advance);
+document.addEventListener("keydown", e => {
+  if ([" ", "Enter", "ArrowRight"].includes(e.key)) {
+    e.preventDefault();
+    advance();
+  }
+});
+
+function celebrate() {
+  toastEl.classList.add("show");
+  if (reduceMotion) return;
+  const colors = ["#ff7eb6", "#ffc857", "#7bdff2", "#ffd6e8"];
+  for (let i = 0; i < 36; i++) {
+    const bit = document.createElement("div");
+    bit.className = "confetti";
+    bit.style.left = Math.random() * 100 + "vw";
+    bit.style.background = colors[i % colors.length];
+    bit.style.opacity = "0";
+    document.body.appendChild(bit);
+    bit.animate(
+      [
+        { transform: "translateY(0) rotate(0deg)", opacity: 1 },
+        { transform: "translateY(105vh) rotate(" + (Math.random() * 720 - 360) + "deg)", opacity: 1 }
+      ],
+      { duration: 2600 + Math.random() * 1800, delay: Math.random() * 900, easing: "cubic-bezier(.3,.6,.5,1)" }
+    ).onfinish = () => bit.remove();
+  }
+}
+
+function makeStars() {
+  const field = document.querySelector(".stars");
+  for (let i = 0; i < 70; i++) {
+    const s = document.createElement("i");
+    s.style.left = Math.random() * 100 + "vw";
+    s.style.top = Math.random() * 100 + "vh";
+    s.style.opacity = (0.2 + Math.random() * 0.8).toFixed(2);
+    field.appendChild(s);
+  }
+}
+
+makeStars();
+buildDots();
+render();
+</script>
+</body>
+</html>
